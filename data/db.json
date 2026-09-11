@@ -1,0 +1,190 @@
+{
+  "patients": [
+    {
+      "id": "P-1001",
+      "name": "Asha Mehta",
+      "age": 34,
+      "gender": "Female",
+      "phone": "98765 43210",
+      "address": "12 Lakeview Rd"
+    },
+    {
+      "id": "P-1002",
+      "name": "Rohan Kulkarni",
+      "age": 52,
+      "gender": "Male",
+      "phone": "99887 66554",
+      "address": "44 Church Street"
+    },
+    {
+      "id": "P-1003",
+      "name": "Meera Iyer",
+      "age": 8,
+      "gender": "Female",
+      "phone": "90000 11122",
+      "address": "7 Garden Lane"
+    },
+    {
+      "id": "P-4831",
+      "name": "saurav",
+      "age": 22,
+      "gender": "Male",
+      "phone": "08606077265",
+      "address": "hilite business park f1"
+    }
+  ],
+  "xrays": [
+    {
+      "id": "X-5001",
+      "patientId": "P-1001",
+      "type": "Chest PA",
+      "part": "Chest",
+      "view": "PA",
+      "date": "2026-09-05",
+      "radiologist": "Dr. Kavita Rao",
+      "cost": 35
+    },
+    {
+      "id": "X-5002",
+      "patientId": "P-1002",
+      "type": "Lumbar Spine",
+      "part": "Spine",
+      "view": "Lateral",
+      "date": "2026-09-06",
+      "radiologist": "Dr. Kavita Rao",
+      "cost": 50
+    },
+    {
+      "id": "X-5003",
+      "patientId": "P-1003",
+      "type": "Hand / Wrist",
+      "part": "Limb",
+      "view": "AP",
+      "date": "2026-09-07",
+      "radiologist": "Dr. Sameer Vora",
+      "cost": 30
+    }
+  ],
+  "invoices": [
+    {
+      "id": "INV-9001",
+      "patientId": "P-1001",
+      "date": "2026-09-05",
+      "items": [
+        {
+          "desc": "Consultation",
+          "amount": 25
+        },
+        {
+          "desc": "X-Ray — Chest PA",
+          "amount": 35
+        }
+      ],
+      "discountPct": 0,
+      "taxPct": 0,
+      "insurancePct": 0,
+      "subtotal": 60,
+      "discountAmt": 0,
+      "taxAmt": 0,
+      "insuranceAmt": 0,
+      "total": 60,
+      "paid": 60,
+      "due": 0,
+      "status": "Paid",
+      "mode": "Cash"
+    },
+    {
+      "id": "INV-9002",
+      "patientId": "P-1002",
+      "date": "2026-09-06",
+      "items": [
+        {
+          "desc": "Consultation",
+          "amount": 25
+        },
+        {
+          "desc": "X-Ray — Lumbar Spine",
+          "amount": 50
+        }
+      ],
+      "discountPct": 10,
+      "taxPct": 5,
+      "insurancePct": 0,
+      "subtotal": 75,
+      "discountAmt": 7.5,
+      "taxAmt": 3.38,
+      "insuranceAmt": 0,
+      "total": 70.88,
+      "paid": 30,
+      "due": 40.88,
+      "status": "Partial",
+      "mode": "Card"
+    },
+    {
+      "id": "INV-3359",
+      "patientId": "P-1001",
+      "date": "2026-09-10",
+      "items": [
+        {
+          "desc": "Consultation",
+          "amount": 25
+        }
+      ],
+      "discountPct": 0,
+      "taxPct": 0,
+      "insurancePct": 0,
+      "subtotal": 25,
+      "discountAmt": 0,
+      "taxAmt": 0,
+      "insuranceAmt": 0,
+      "total": 25,
+      "paid": 25,
+      "due": 0,
+      "status": "Paid",
+      "mode": "Cash"
+    },
+    {
+      "id": "INV-2971",
+      "patientId": "P-1001",
+      "date": "2026-09-10",
+      "items": [
+        {
+          "desc": "Consultation",
+          "amount": 25
+        },
+        {
+          "desc": "X-Ray — Chest PA",
+          "amount": 35
+        },
+        {
+          "desc": "leg",
+          "amount": 2
+        },
+        {
+          "desc": "210",
+          "amount": 1
+        },
+        {
+          "desc": "xray",
+          "amount": 2
+        },
+        {
+          "desc": "rr",
+          "amount": 510
+        }
+      ],
+      "discountPct": 0,
+      "taxPct": 0,
+      "insurancePct": 0,
+      "subtotal": 575,
+      "discountAmt": 0,
+      "taxAmt": 0,
+      "insuranceAmt": 0,
+      "total": 575,
+      "paid": 575,
+      "due": 0,
+      "status": "Paid",
+      "mode": "Cash"
+    }
+  ]
+}
