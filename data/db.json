@@ -25,12 +25,12 @@
       "address": "7 Garden Lane"
     },
     {
-      "id": "P-4831",
+      "id": "P-1058",
       "name": "saurav",
       "age": 22,
       "gender": "Male",
-      "phone": "08606077265",
-      "address": "hilite business park f1"
+      "phone": "1242211244",
+      "address": "wnnsdnvkjnskjdfn"
     }
   ],
   "xrays": [
@@ -182,6 +182,56 @@
       "insuranceAmt": 0,
       "total": 575,
       "paid": 575,
+      "due": 0,
+      "status": "Paid",
+      "mode": "Cash"
+    },
+    {
+      "id": "INV-4665",
+      "patientId": "P-1001",
+      "date": "2026-09-15",
+      "items": [
+        {
+          "desc": "Consultation",
+          "amount": 300
+        },
+        {
+          "desc": "X-Ray — Chest PA",
+          "amount": 35
+        }
+      ],
+      "discountPct": 0,
+      "taxPct": 0,
+      "insurancePct": 0,
+      "subtotal": 335,
+      "discountAmt": 0,
+      "taxAmt": 0,
+      "insuranceAmt": 0,
+      "total": 335,
+      "paid": 335,
+      "due": 0,
+      "status": "Paid",
+      "mode": "UPI"
+    },
+    {
+      "id": "INV-4994",
+      "patientId": "P-1001",
+      "date": "2026-09-15",
+      "items": [
+        {
+          "desc": "Consultation",
+          "amount": 300
+        }
+      ],
+      "discountPct": 0,
+      "taxPct": 0,
+      "insurancePct": 0,
+      "subtotal": 300,
+      "discountAmt": 0,
+      "taxAmt": 0,
+      "insuranceAmt": 0,
+      "total": 300,
+      "paid": 300,
       "due": 0,
       "status": "Paid",
       "mode": "Cash"

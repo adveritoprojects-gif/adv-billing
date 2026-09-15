@@ -1,4 +1,4 @@
-# Riverside Clinic — Billing Software
+# Billing Software
 
 A Next.js (App Router) clinic billing application: patient records, x-ray
 records, itemized invoicing with a Basic/Advanced mode toggle, and simple
