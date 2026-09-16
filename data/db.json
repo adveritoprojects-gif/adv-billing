@@ -31,6 +31,22 @@
       "gender": "Male",
       "phone": "1242211244",
       "address": "wnnsdnvkjnskjdfn"
+    },
+    {
+      "id": "P-5300",
+      "name": "test",
+      "age": 3,
+      "gender": "Female",
+      "phone": "",
+      "address": ""
+    },
+    {
+      "id": "P-5719",
+      "name": "Adverito dionz",
+      "age": 22,
+      "gender": "Female",
+      "phone": "08606077265",
+      "address": "hilite business park f1"
     }
   ],
   "xrays": [
@@ -217,6 +233,29 @@
       "id": "INV-4994",
       "patientId": "P-1001",
       "date": "2026-09-15",
+      "items": [
+        {
+          "desc": "Consultation",
+          "amount": 300
+        }
+      ],
+      "discountPct": 0,
+      "taxPct": 0,
+      "insurancePct": 0,
+      "subtotal": 300,
+      "discountAmt": 0,
+      "taxAmt": 0,
+      "insuranceAmt": 0,
+      "total": 300,
+      "paid": 300,
+      "due": 0,
+      "status": "Paid",
+      "mode": "Cash"
+    },
+    {
+      "id": "INV-3137",
+      "patientId": "P-1001",
+      "date": "2026-09-16",
       "items": [
         {
           "desc": "Consultation",

@@ -1,0 +1,87 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Patient {
+  id String @id
+
+  name    String
+  age     Int
+  gender  String
+  phone   String
+  address String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  xrays    XRay[]
+  invoices Invoice[]
+}
+
+model XRay {
+  id        String @id
+  patientId String
+
+  type        String
+  part        String
+  view        String
+  date        String
+  radiologist String
+  cost        Float
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@index([patientId])
+  @@index([date])
+}
+
+model Invoice {
+  id        String @id
+  patientId String
+  date      String
+
+  discountPct  Float @default(0)
+  taxPct       Float @default(0)
+  insurancePct Float @default(0)
+
+  subtotal     Float
+  discountAmt  Float @default(0)
+  taxAmt       Float @default(0)
+  insuranceAmt Float @default(0)
+
+  total Float
+  paid  Float @default(0)
+  due   Float @default(0)
+
+  status String
+  mode   String
+
+  patient Patient       @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  items   InvoiceItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([patientId])
+  @@index([date])
+  @@index([status])
+}
+
+model InvoiceItem {
+  id          String @id @default(cuid())
+  invoiceId   String
+  description String
+  amount      Float
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}

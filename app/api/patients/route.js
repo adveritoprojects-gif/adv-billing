@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { readDB, writeDB, uid } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const db = readDB();
-  return NextResponse.json(db.patients);
+  const patients = await prisma.patient.findMany({ orderBy: { createdAt: "desc" } });
+  return NextResponse.json(patients);
 }
 
 export async function POST(request) {
@@ -13,18 +13,19 @@ export async function POST(request) {
     return NextResponse.json({ error: "Patient name is required" }, { status: 400 });
   }
 
-  const db = readDB();
-  const patient = {
-    id: uid("P", db.patients.map((p) => p.id)),
-    name: String(body.name).trim(),
-    age: Number(body.age) || 0,
-    gender: body.gender || "Other",
-    phone: body.phone || "",
-    address: body.address || "",
-  };
+  const count = await prisma.patient.count();
+  const id = `P-${1000 + count + 1}`;
 
-  db.patients.push(patient);
-  writeDB(db);
+  const patient = await prisma.patient.create({
+    data: {
+      id,
+      name: String(body.name).trim(),
+      age: Number(body.age) || 0,
+      gender: body.gender || "Other",
+      phone: body.phone || "",
+      address: body.address || "",
+    },
+  });
 
   return NextResponse.json(patient, { status: 201 });
 }
