@@ -3,29 +3,85 @@
 import { useEffect, useState } from "react";
 import { Search, ChevronDown } from "lucide-react";
 import { fmt } from "@/lib/constants";
-import { TextInput, SectionHeader, Badge } from "@/components/ui";
+import { TextInput, SectionHeader, Badge, Skeleton } from "@/components/ui";
 
 export default function InvoicesPage() {
   const [patients, setPatients] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState(null);
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
+    setError(null);
     Promise.all([
-      fetch("/api/patients").then((r) => r.json()),
-      fetch("/api/invoices").then((r) => r.json()),
-    ]).then(([p, i]) => {
-      setPatients(p);
-      setInvoices(i);
-      setLoading(false);
-    });
-  }, []);
+      fetch("/api/patients").then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/invoices").then((r) => (r.ok ? r.json() : [])),
+    ])
+      .then(([p, i]) => {
+        setPatients(Array.isArray(p) ? p : []);
+        setInvoices(Array.isArray(i) ? i : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load data.");
+        setLoading(false);
+      });
+  };
+
+  useEffect(load, []);
 
   if (loading) {
-    return <p className="text-sm text-inkSoft">Loading…</p>;
+    return (
+      <div>
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <Skeleton className="h-7 w-24 mb-1" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <Skeleton className="h-9 w-56" />
+          <Skeleton className="h-8 w-12 rounded-full" />
+          <Skeleton className="h-8 w-16 rounded-full" />
+          <Skeleton className="h-8 w-18 rounded-full" />
+          <Skeleton className="h-8 w-18 rounded-full" />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="rounded-lg bg-white overflow-hidden border border-border px-4 py-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Skeleton className="h-4 w-28 mb-1.5" />
+                  <Skeleton className="h-3 w-36" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-4 w-14" />
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                  <Skeleton className="h-4 w-4" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg bg-white p-8 text-center border border-border">
+        <p className="text-sm text-rose mb-3">{error}</p>
+        <button onClick={load} className="rounded-md px-4 py-2 text-sm text-white bg-tealDeep">
+          Retry
+        </button>
+      </div>
+    );
   }
 
   const withNames = invoices.map((inv) => ({
