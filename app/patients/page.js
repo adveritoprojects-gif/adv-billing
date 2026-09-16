@@ -3,27 +3,35 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X, Search } from "lucide-react";
-import { Field, TextInput, Select, SectionHeader } from "@/components/ui";
+import { Field, TextInput, Select, SectionHeader, Skeleton } from "@/components/ui";
 
 export default function PatientsPage() {
   const router = useRouter();
   const [patients, setPatients] = useState([]);
   const [xrays, setXrays] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [query, setQuery] = useState("");
   const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState({ name: "", age: "", gender: "Female", phone: "", address: "" });
 
   const load = () => {
+    setLoading(true);
+    setError(null);
     Promise.all([
-      fetch("/api/patients").then((r) => r.json()),
-      fetch("/api/xrays").then((r) => r.json()),
-    ]).then(([p, x]) => {
-      setPatients(p);
-      setXrays(x);
-      setLoading(false);
-    });
+      fetch("/api/patients").then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/xrays").then((r) => (r.ok ? r.json() : [])),
+    ])
+      .then(([p, x]) => {
+        setPatients(Array.isArray(p) ? p : []);
+        setXrays(Array.isArray(x) ? x : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load data.");
+        setLoading(false);
+      });
   };
 
   useEffect(load, []);
@@ -49,7 +57,54 @@ export default function PatientsPage() {
     setSaving(false);
   };
 
-  if (loading) return <p className="text-sm text-inkSoft">Loading…</p>;
+  if (loading) {
+    return (
+      <div>
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <Skeleton className="h-7 w-28 mb-1" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-9 w-36 rounded-md" />
+        </div>
+
+        <Skeleton className="h-9 w-72 mb-3" />
+
+        <div className="rounded-lg bg-white overflow-hidden border border-border">
+          <div className="bg-surfaceAlt px-4 py-2 flex gap-16">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-20 hidden sm:block" />
+            <Skeleton className="h-4 w-20 hidden md:block" />
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-4 w-10" />
+          </div>
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex items-center px-4 py-3 border-t border-border">
+              <div className="flex-1">
+                <Skeleton className="h-4 w-28 mb-1" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+              <Skeleton className="h-4 w-14 hidden sm:block" />
+              <Skeleton className="h-4 w-20 hidden md:block" />
+              <Skeleton className="h-4 w-6" />
+              <Skeleton className="h-4 w-10" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg bg-white p-8 text-center border border-border">
+        <p className="text-sm text-rose mb-3">{error}</p>
+        <button onClick={load} className="rounded-md px-4 py-2 text-sm text-white bg-tealDeep">
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div>

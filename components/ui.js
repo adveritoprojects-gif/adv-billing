@@ -56,3 +56,7 @@ export function SectionHeader({ title, subtitle, action }) {
     </div>
   );
 }
+
+export function Skeleton({ className = "" }) {
+  return <div className={`skeleton ${className}`} />;
+}

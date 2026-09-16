@@ -21,3 +21,15 @@ body {
     display: none !important;
   }
 }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #e4ece6 25%, #f0f4f1 50%, #e4ece6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.375rem;
+}

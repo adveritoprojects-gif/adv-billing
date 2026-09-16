@@ -12,29 +12,100 @@ import {
   BarChart3,
 } from "lucide-react";
 import { fmt, today } from "@/lib/constants";
-import { StatCard, SectionHeader, Badge } from "@/components/ui";
+import { StatCard, SectionHeader, Badge, Skeleton } from "@/components/ui";
 
 export default function DashboardPage() {
   const [patients, setPatients] = useState([]);
   const [xrays, setXrays] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
+    setError(null);
     Promise.all([
-      fetch("/api/patients").then((r) => r.json()),
-      fetch("/api/xrays").then((r) => r.json()),
-      fetch("/api/invoices").then((r) => r.json()),
-    ]).then(([p, x, i]) => {
-      setPatients(p);
-      setXrays(x);
-      setInvoices(i);
-      setLoading(false);
-    });
-  }, []);
+      fetch("/api/patients").then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/xrays").then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/invoices").then((r) => (r.ok ? r.json() : [])),
+    ])
+      .then(([p, x, i]) => {
+        setPatients(Array.isArray(p) ? p : []);
+        setXrays(Array.isArray(x) ? x : []);
+        setInvoices(Array.isArray(i) ? i : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load data. Check your connection and try again.");
+        setLoading(false);
+      });
+  };
+
+  useEffect(load, []);
 
   if (loading) {
-    return <p className="text-sm text-inkSoft">Loading…</p>;
+    return (
+      <div>
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <Skeleton className="h-7 w-44 mb-1" />
+            <Skeleton className="h-4 w-28" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-lg bg-white p-4 flex items-start justify-between border border-border">
+              <div className="flex-1">
+                <Skeleton className="h-3.5 w-24 mb-2" />
+                <Skeleton className="h-7 w-16" />
+              </div>
+              <Skeleton className="h-9 w-9 rounded-md" />
+            </div>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 rounded-lg bg-white p-4 border border-border">
+            <div className="flex items-center justify-between mb-3">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-4 w-14" />
+            </div>
+            <div className="divide-y divide-border">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between py-2.5">
+                  <div>
+                    <Skeleton className="h-4 w-28 mb-1.5" />
+                    <Skeleton className="h-3 w-36" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-4 w-14" />
+                    <Skeleton className="h-5 w-14 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-lg p-4 bg-tealDeep">
+            <Skeleton className="h-5 w-28 mb-3 bg-white/20" />
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-8 w-full mb-2 bg-white/10" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg bg-white p-8 text-center border border-border">
+        <p className="text-sm text-rose mb-3">{error}</p>
+        <button onClick={load} className="rounded-md px-4 py-2 text-sm text-white bg-tealDeep">
+          Retry
+        </button>
+      </div>
+    );
   }
 
   const revenue = invoices.reduce((s, i) => s + i.paid, 0);

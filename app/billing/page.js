@@ -4,12 +4,29 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { CONSULT_FEE, PAY_MODES, fmt, today } from "@/lib/constants";
-import { Field, TextInput, Select, SectionHeader } from "@/components/ui";
+import { Field, TextInput, Select, SectionHeader, Skeleton } from "@/components/ui";
 import InvoiceReceipt from "@/components/InvoiceReceipt";
 
 export default function BillingPage() {
   return (
-    <Suspense fallback={<p className="text-sm text-inkSoft">Loading…</p>}>
+    <Suspense fallback={
+      <div>
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <Skeleton className="h-7 w-24 mb-1" />
+            <Skeleton className="h-4 w-56" />
+          </div>
+        </div>
+        <div className="grid lg:grid-cols-5 gap-4">
+          <div className="lg:col-span-3 flex flex-col gap-4">
+            <div className="rounded-lg bg-white p-4 border border-border"><Skeleton className="h-20 w-full" /></div>
+            <div className="rounded-lg bg-white p-4 border border-border"><Skeleton className="h-48 w-full" /></div>
+            <div className="rounded-lg bg-white p-4 border border-border"><Skeleton className="h-24 w-full" /></div>
+          </div>
+          <div className="lg:col-span-2"><div className="rounded-lg bg-white p-4 border border-border"><Skeleton className="h-64 w-full" /></div></div>
+        </div>
+      </div>
+    }>
       <BillingPageInner />
     </Suspense>
   );
@@ -23,6 +40,7 @@ function BillingPageInner() {
   const [patients, setPatients] = useState([]);
   const [xrays, setXrays] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [patientId, setPatientId] = useState("");
   const [includeConsult, setIncludeConsult] = useState(true);
@@ -44,14 +62,19 @@ function BillingPageInner() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/patients").then((r) => r.json()),
-      fetch("/api/xrays").then((r) => r.json()),
-    ]).then(([p, x]) => {
-      setPatients(p);
-      setXrays(x);
-      setPatientId(prefillPatientId || p[0]?.id || "");
-      setLoading(false);
-    });
+      fetch("/api/patients").then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/xrays").then((r) => (r.ok ? r.json() : [])),
+    ])
+      .then(([p, x]) => {
+        setPatients(Array.isArray(p) ? p : []);
+        setXrays(Array.isArray(x) ? x : []);
+        setPatientId(prefillPatientId || p[0]?.id || "");
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to load data.");
+        setLoading(false);
+      });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -188,7 +211,36 @@ function BillingPageInner() {
   };
 
   if (loading) {
-    return <p className="text-sm text-inkSoft">Loading…</p>;
+    return (
+      <div>
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <Skeleton className="h-7 w-24 mb-1" />
+            <Skeleton className="h-4 w-56" />
+          </div>
+        </div>
+        <div className="grid lg:grid-cols-5 gap-4">
+          <div className="lg:col-span-3 flex flex-col gap-4">
+            <div className="rounded-lg bg-white p-4 border border-border"><Skeleton className="h-20 w-full" /></div>
+            <div className="rounded-lg bg-white p-4 border border-border"><Skeleton className="h-48 w-full" /></div>
+            <div className="rounded-lg bg-white p-4 border border-border"><Skeleton className="h-24 w-full" /></div>
+            <div className="rounded-lg bg-white p-4 border border-border"><Skeleton className="h-24 w-full" /></div>
+          </div>
+          <div className="lg:col-span-2"><div className="rounded-lg bg-white p-4 border border-border"><Skeleton className="h-64 w-full" /></div></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg bg-white p-8 text-center border border-border">
+        <p className="text-sm text-rose mb-3">{error}</p>
+        <button onClick={() => window.location.reload()} className="rounded-md px-4 py-2 text-sm text-white bg-tealDeep">
+          Retry
+        </button>
+      </div>
+    );
   }
 
   const patient = patients.find((p) => p.id === patientId);
