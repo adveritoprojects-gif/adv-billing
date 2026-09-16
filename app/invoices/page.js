@@ -125,7 +125,7 @@ export default function InvoicesPage() {
                   <div className="divide-y divide-border mt-2">
                     {inv.items.map((it, idx) => (
                       <div key={idx} className="flex justify-between py-1.5">
-                        <span className="text-ink">{it.desc}</span>
+                        <span className="text-ink">{it.description}</span>
 
                         <span className="tabular-nums">{fmt(it.amount)}</span>
                       </div>
