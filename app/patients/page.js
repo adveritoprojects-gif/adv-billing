@@ -234,7 +234,7 @@ export default function PatientsPage() {
         <TextInput value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search patients" className="pl-8 w-full" />
       </div>
 
-      <div className="rounded-lg bg-white overflow-hidden border border-border">
+      <div className="rounded-lg bg-white border border-border">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-surfaceAlt text-inkSoft">
@@ -269,7 +269,7 @@ export default function PatientsPage() {
                     <MoreVertical size={16} />
                   </button>
                   {menuOpen === p.id && (
-                    <div className="absolute right-0 top-full mt-1 bg-white border border-border rounded-lg shadow-lg z-10 w-32 py-1">
+                    <div className="absolute right-0 bottom-full mb-1 bg-white border border-border rounded-lg shadow-lg z-50 w-32 py-1">
                       <button
                         onClick={() => startEdit(p)}
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ink hover:bg-surfaceAlt"

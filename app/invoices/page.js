@@ -178,7 +178,7 @@ export default function InvoicesPage() {
                     <MoreVertical size={16} />
                   </button>
                   {menuOpen === inv.id && (
-                    <div className="absolute right-0 top-full mt-1 bg-white border border-border rounded-lg shadow-lg z-10 w-32 py-1">
+                    <div className="absolute right-0 bottom-full mb-1 bg-white border border-border rounded-lg shadow-lg z-50 w-32 py-1">
                       <button
                         onClick={() => confirmDeleteInvoice(inv)}
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-rose hover:bg-roseLight"
