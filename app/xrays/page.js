@@ -122,7 +122,7 @@ export default function XraysPage() {
           </div>
           <Skeleton className="h-9 w-28 rounded-md" />
         </div>
-        <div className="rounded-lg bg-white overflow-hidden border border-border">
+      <div className="rounded-lg bg-white border border-border">
           <div className="bg-surfaceAlt px-4 py-2 flex gap-16">
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-4 w-20" />

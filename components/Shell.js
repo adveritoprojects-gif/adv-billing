@@ -73,7 +73,7 @@ export default function Shell({ children }) {
       <main className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <header className="no-print flex items-center justify-between px-4 sm:px-6 py-3 border-b border-border">
-          <p className="text-xs text-inkSoft"> Payyanur Scan </p>
+          <p className="text-base font-medium text-ink"> Payyannur Scans </p>
         </header>
         {/* Page Content */}
         <div className="p-4 sm:p-6 flex-1 bg-page"> {children} </div>

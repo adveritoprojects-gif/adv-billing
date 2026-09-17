@@ -157,7 +157,7 @@ export default function InvoicesPage() {
         {filtered.slice().reverse().map((inv) => (
           <div
             key={inv.id}
-            className="rounded-lg bg-white overflow-hidden border border-border"
+            className="rounded-lg bg-white border border-border"
           >
             <button
               onClick={() => setOpenId(openId === inv.id ? null : inv.id)}

@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Trash2 } from "lucide-react";
-import { CONSULT_FEE, PAY_MODES, fmt, today } from "@/lib/constants";
+import { PAY_MODES, fmt, today } from "@/lib/constants";
 import { Field, TextInput, Select, SectionHeader, Skeleton } from "@/components/ui";
 import InvoiceReceipt from "@/components/InvoiceReceipt";
 
@@ -43,7 +43,6 @@ function BillingPageInner() {
   const [error, setError] = useState(null);
 
   const [patientId, setPatientId] = useState("");
-  const [includeConsult, setIncludeConsult] = useState(true);
   const [selectedXrayIds, setSelectedXrayIds] = useState([]);
   const [customItems, setCustomItems] = useState([]);
   const [customDesc, setCustomDesc] = useState("");
@@ -107,13 +106,6 @@ function BillingPageInner() {
   const lineItems = useMemo(() => {
     const items = [];
 
-    if (includeConsult) {
-      items.push({
-        desc: "Consultation",
-        amount: CONSULT_FEE,
-      });
-    }
-
     patientXrays
       .filter((x) => selectedXrayIds.includes(x.id))
       .forEach((x) =>
@@ -128,7 +120,7 @@ function BillingPageInner() {
     return items;
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [includeConsult, selectedXrayIds, customItems, patientId]);
+  }, [selectedXrayIds, customItems, patientId]);
 
   const subtotal = lineItems.reduce((s, i) => s + Number(i.amount || 0), 0);
 
@@ -155,7 +147,6 @@ function BillingPageInner() {
     due <= 0.005 ? "Paid" : effectivePaid === 0 ? "Unpaid" : "Partial";
 
   const resetForm = () => {
-    setIncludeConsult(true);
     setSelectedXrayIds([]);
     setCustomItems([]);
     setDiscountPct(0);
@@ -295,20 +286,6 @@ function BillingPageInner() {
             <h3 className="text-[15px] font-medium mb-2 text-ink">
               Line items
             </h3>
-
-            <label className="flex items-center gap-2 text-sm py-1.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={includeConsult}
-                onChange={(e) => setIncludeConsult(e.target.checked)}
-              />
-
-              <span className="text-ink">Consultation fee</span>
-
-              <span className="ml-auto text-inkSoft tabular-nums">
-                {fmt(CONSULT_FEE)}
-              </span>
-            </label>
 
             {patientXrays.length > 0 && (
               <div className="mt-1 mb-2">

@@ -114,7 +114,7 @@ export default function PatientsPage() {
           <Skeleton className="h-9 w-36 rounded-md" />
         </div>
         <Skeleton className="h-9 w-72 mb-3" />
-        <div className="rounded-lg bg-white overflow-hidden border border-border">
+      <div className="rounded-lg bg-white border border-border">
           <div className="bg-surfaceAlt px-4 py-2 flex gap-16">
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-4 w-20 hidden sm:block" />
