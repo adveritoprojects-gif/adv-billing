@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, ChevronDown, MoreVertical, Trash2 } from "lucide-react";
+import { Search, ChevronDown, MoreVertical, Trash2, Stethoscope } from "lucide-react";
 import { fmt } from "@/lib/constants";
 import { TextInput, SectionHeader, Badge, Skeleton, ConfirmDialog } from "@/components/ui";
 
@@ -99,16 +99,35 @@ export default function InvoicesPage() {
     );
   }
 
-  const withNames = invoices.map((inv) => ({
-    ...inv,
-    patientName: patients.find((p) => p.id === inv.patientId)?.name || "Unknown",
-  }));
+  const fmtDateTime = (inv) => {
+    const d = new Date(inv.createdAt || inv.date);
+    if (!isNaN(d)) {
+      return d.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+    return inv.date || "";
+  };
+
+  const withNames = invoices.map((inv) => {
+    const patient = patients.find((p) => p.id === inv.patientId);
+    return {
+      ...inv,
+      patientName: patient?.name || "Unknown",
+      patientPhone: patient?.phone || "—",
+    };
+  });
 
   const filtered = withNames.filter((inv) => {
     const matchStatus = filter === "All" || inv.status === filter;
     const search = query.toLowerCase();
     const matchQuery =
       inv.patientName.toLowerCase().includes(search) ||
+      inv.patientPhone.toLowerCase().includes(search) ||
       inv.id.toLowerCase().includes(search);
     return matchStatus && matchQuery;
   });
@@ -123,7 +142,7 @@ export default function InvoicesPage() {
           <TextInput
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search patient or invoice #"
+            placeholder="Search patient, phone or invoice #"
             className="pl-8 w-56"
           />
         </div>
@@ -165,7 +184,8 @@ export default function InvoicesPage() {
             >
               <div>
                 <div className="text-sm text-ink">{inv.patientName}</div>
-                <div className="text-xs text-inkSoft">{inv.id} · {inv.date}</div>
+                <div className="text-xs text-inkSoft">{inv.id} · {fmtDateTime(inv)}</div>
+                <div className="text-xs text-inkSoft">{inv.patientPhone}</div>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm tabular-nums text-ink">{fmt(inv.total)}</span>
@@ -197,45 +217,64 @@ export default function InvoicesPage() {
             </button>
 
             {openId === inv.id && (
-              <div className="px-4 pb-4 text-sm border-t border-border">
-                <div className="divide-y divide-border mt-2">
-                  {inv.items.map((it, idx) => (
-                    <div key={idx} className="flex justify-between py-1.5">
-                      <span className="text-ink">{it.description}</span>
-                      <span className="tabular-nums">{fmt(it.amount)}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-1 space-y-1 text-xs text-inkSoft">
-                  {inv.discountAmt > 0 && (
-                    <div className="flex justify-between">
-                      <span>Discount</span>
-                      <span>-{fmt(inv.discountAmt)}</span>
-                    </div>
-                  )}
-                  {inv.taxAmt > 0 && (
-                    <div className="flex justify-between">
-                      <span>Tax</span>
-                      <span>+{fmt(inv.taxAmt)}</span>
-                    </div>
-                  )}
-                  {inv.insuranceAmt > 0 && (
-                    <div className="flex justify-between">
-                      <span>Insurance</span>
-                      <span>-{fmt(inv.insuranceAmt)}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex justify-between pt-2 mt-1 border-t border-border text-sm text-ink">
-                  <span>Paid via {inv.mode}</span>
-                  <span className="tabular-nums">{fmt(inv.paid)}</span>
-                </div>
-                {inv.due > 0.005 && (
-                  <div className="flex justify-between text-sm text-rose">
-                    <span>Due</span>
-                    <span className="tabular-nums">{fmt(inv.due)}</span>
+              <div className="px-4 pb-4 border-t border-border">
+                <div className="max-w-md mx-auto mt-4 rounded-lg bg-white p-5" style={{ border: "1px dashed #CBD8CF" }}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Stethoscope size={16} className="text-tealDeep" />
+                    <span className="text-[15px] font-head text-ink">Riverside Family Clinic</span>
                   </div>
-                )}
+                  <p className="text-xs mb-3 text-inkSoft">Invoice {inv.id} · {fmtDateTime(inv)}</p>
+                  <p className="text-sm mb-1 text-ink">
+                    {inv.patientName} <span className="text-inkSoft">({inv.patientId})</span>
+                  </p>
+                  <p className="text-xs mb-3 text-inkSoft">{inv.patientPhone}</p>
+                  <div className="text-sm divide-y divide-border border-t border-border">
+                    {inv.items.map((it, idx) => (
+                      <div key={idx} className="flex justify-between py-1.5">
+                        <span className="text-ink">{it.description}</span>
+                        <span className="tabular-nums">{fmt(it.amount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-border text-sm space-y-1">
+                    {inv.discountAmt > 0 && (
+                      <div className="flex justify-between text-xs text-inkSoft">
+                        <span>Discount</span>
+                        <span>-{fmt(inv.discountAmt)}</span>
+                      </div>
+                    )}
+                    {inv.taxAmt > 0 && (
+                      <div className="flex justify-between text-xs text-inkSoft">
+                        <span>Tax</span>
+                        <span>+{fmt(inv.taxAmt)}</span>
+                      </div>
+                    )}
+                    {inv.insuranceAmt > 0 && (
+                      <div className="flex justify-between text-xs text-inkSoft">
+                        <span>Insurance</span>
+                        <span>-{fmt(inv.insuranceAmt)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-base font-head text-ink">
+                      <span>Total</span>
+                      <span className="tabular-nums">{fmt(inv.total)}</span>
+                    </div>
+                    <div className="flex justify-between text-inkSoft">
+                      <span>Paid ({inv.mode})</span>
+                      <span className="tabular-nums">{fmt(inv.paid)}</span>
+                    </div>
+                    {inv.due > 0.005 && (
+                      <div className="flex justify-between text-rose">
+                        <span>Due</span>
+                        <span className="tabular-nums">{fmt(inv.due)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-inkSoft">Status</span>
+                      <Badge status={inv.status} />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

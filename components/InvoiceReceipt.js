@@ -17,7 +17,7 @@ export default function InvoiceReceipt({ invoice, patient, onDone, onNew }) {
         <div className="text-sm divide-y divide-border">
           {invoice.items.map((it, idx) => (
             <div key={idx} className="flex justify-between py-1.5">
-              <span className="text-ink">{it.desc}</span>
+              <span className="text-ink">{it.description ?? it.desc}</span>
               <span className="tabular-nums">{fmt(it.amount)}</span>
             </div>
           ))}
