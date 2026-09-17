@@ -15,8 +15,10 @@ module.exports = {
         border: "#CBD8CF",
         tealDeep: "#14453F",
         teal: "#1F6F63",
+        tealLight: "#E6F0EE",
         amber: "#B0721F",
         rose: "#B23B3B",
+        roseLight: "#FCEAEA",
         green: "#2E7D4F",
       },
       fontFamily: {

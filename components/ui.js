@@ -60,3 +60,44 @@ export function SectionHeader({ title, subtitle, action }) {
 export function Skeleton({ className = "" }) {
   return <div className={`skeleton ${className}`} />;
 }
+
+export function Modal({ open, onClose, title, children }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-auto">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h3 className="text-base font-head text-ink">{title}</h3>
+          <button onClick={onClose} className="text-inkSoft hover:text-ink rounded p-1">&times;</button>
+        </div>
+        <div className="p-5">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+export function ConfirmDialog({ open, onClose, onConfirm, title, message, confirmLabel = "Delete", loading }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+        <div className="px-5 pt-5 pb-3">
+          <h3 className="text-base font-head text-ink">{title}</h3>
+          <p className="text-sm text-inkSoft mt-2">{message}</p>
+        </div>
+        <div className="flex justify-end gap-2 px-5 pb-5">
+          <button onClick={onClose} className="rounded-md px-4 py-2 text-sm text-inkSoft bg-surfaceAlt hover:bg-surfaceAlt/80">Cancel</button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="rounded-md px-4 py-2 text-sm text-white bg-rose hover:bg-rose/90 disabled:opacity-50"
+          >
+            {loading ? "Deleting…" : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

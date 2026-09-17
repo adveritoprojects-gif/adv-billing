@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, MoreVertical, Trash2 } from "lucide-react";
 import { fmt } from "@/lib/constants";
-import { TextInput, SectionHeader, Badge, Skeleton } from "@/components/ui";
+import { TextInput, SectionHeader, Badge, Skeleton, ConfirmDialog } from "@/components/ui";
 
 export default function InvoicesPage() {
   const [patients, setPatients] = useState([]);
@@ -13,6 +13,9 @@ export default function InvoicesPage() {
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -34,6 +37,22 @@ export default function InvoicesPage() {
 
   useEffect(load, []);
 
+  const confirmDeleteInvoice = (inv) => {
+    setConfirmDelete(inv);
+    setMenuOpen(null);
+  };
+
+  const deleteInvoice = async () => {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    const res = await fetch(`/api/invoices/${confirmDelete.id}`, { method: "DELETE" });
+    if (res.ok) {
+      setInvoices((prev) => prev.filter((inv) => inv.id !== confirmDelete.id));
+    }
+    setDeleting(false);
+    setConfirmDelete(null);
+  };
+
   if (loading) {
     return (
       <div>
@@ -43,7 +62,6 @@ export default function InvoicesPage() {
             <Skeleton className="h-4 w-16" />
           </div>
         </div>
-
         <div className="flex gap-2 mb-4">
           <Skeleton className="h-9 w-56" />
           <Skeleton className="h-8 w-12 rounded-full" />
@@ -51,7 +69,6 @@ export default function InvoicesPage() {
           <Skeleton className="h-8 w-18 rounded-full" />
           <Skeleton className="h-8 w-18 rounded-full" />
         </div>
-
         <div className="flex flex-col gap-2">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="rounded-lg bg-white overflow-hidden border border-border px-4 py-3">
@@ -77,28 +94,22 @@ export default function InvoicesPage() {
     return (
       <div className="rounded-lg bg-white p-8 text-center border border-border">
         <p className="text-sm text-rose mb-3">{error}</p>
-        <button onClick={load} className="rounded-md px-4 py-2 text-sm text-white bg-tealDeep">
-          Retry
-        </button>
+        <button onClick={load} className="rounded-md px-4 py-2 text-sm text-white bg-tealDeep">Retry</button>
       </div>
     );
   }
 
   const withNames = invoices.map((inv) => ({
     ...inv,
-    patientName:
-      patients.find((p) => p.id === inv.patientId)?.name || "Unknown",
+    patientName: patients.find((p) => p.id === inv.patientId)?.name || "Unknown",
   }));
 
   const filtered = withNames.filter((inv) => {
     const matchStatus = filter === "All" || inv.status === filter;
-
     const search = query.toLowerCase();
-
     const matchQuery =
       inv.patientName.toLowerCase().includes(search) ||
       inv.id.toLowerCase().includes(search);
-
     return matchStatus && matchQuery;
   });
 
@@ -108,11 +119,7 @@ export default function InvoicesPage() {
 
       <div className="flex flex-wrap gap-2 mb-4">
         <div className="relative">
-          <Search
-            size={15}
-            className="absolute left-2.5 top-2.5 text-inkSoft"
-          />
-
+          <Search size={15} className="absolute left-2.5 top-2.5 text-inkSoft" />
           <TextInput
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -120,7 +127,6 @@ export default function InvoicesPage() {
             className="pl-8 w-56"
           />
         </div>
-
         <div className="flex gap-1">
           {["All", "Paid", "Partial", "Unpaid"].map((s) => (
             <button
@@ -138,101 +144,104 @@ export default function InvoicesPage() {
         </div>
       </div>
 
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={deleteInvoice}
+        title="Delete Invoice"
+        message={`Are you sure you want to delete invoice ${confirmDelete?.id || ""}? This action cannot be undone.`}
+        loading={deleting}
+      />
+
       <div className="flex flex-col gap-2">
-        {filtered
-          .slice()
-          .reverse()
-          .map((inv) => (
-            <div
-              key={inv.id}
-              className="rounded-lg bg-white overflow-hidden border border-border"
+        {filtered.slice().reverse().map((inv) => (
+          <div
+            key={inv.id}
+            className="rounded-lg bg-white overflow-hidden border border-border"
+          >
+            <button
+              onClick={() => setOpenId(openId === inv.id ? null : inv.id)}
+              className="w-full flex items-center justify-between px-4 py-3 text-left"
             >
-              <button
-                onClick={() => setOpenId(openId === inv.id ? null : inv.id)}
-                className="w-full flex items-center justify-between px-4 py-3 text-left"
-              >
-                <div>
-                  <div className="text-sm text-ink">{inv.patientName}</div>
-
-                  <div className="text-xs text-inkSoft">
-                    {inv.id} · {inv.date}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-sm tabular-nums text-ink">
-                    {fmt(inv.total)}
-                  </span>
-
-                  <Badge status={inv.status} />
-
-                  <ChevronDown
-                    size={16}
-                    className="text-inkSoft transition-transform"
-                    style={{
-                      transform: openId === inv.id ? "rotate(180deg)" : "none",
-                    }}
-                  />
-                </div>
-              </button>
-
-              {openId === inv.id && (
-                <div className="px-4 pb-4 text-sm border-t border-border">
-                  <div className="divide-y divide-border mt-2">
-                    {inv.items.map((it, idx) => (
-                      <div key={idx} className="flex justify-between py-1.5">
-                        <span className="text-ink">{it.description}</span>
-
-                        <span className="tabular-nums">{fmt(it.amount)}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-1 space-y-1 text-xs text-inkSoft">
-                    {inv.discountAmt > 0 && (
-                      <div className="flex justify-between">
-                        <span>Discount</span>
-                        <span>−{fmt(inv.discountAmt)}</span>
-                      </div>
-                    )}
-
-                    {inv.taxAmt > 0 && (
-                      <div className="flex justify-between">
-                        <span>Tax</span>
-                        <span>+{fmt(inv.taxAmt)}</span>
-                      </div>
-                    )}
-
-                    {inv.insuranceAmt > 0 && (
-                      <div className="flex justify-between">
-                        <span>Insurance</span>
-                        <span>−{fmt(inv.insuranceAmt)}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex justify-between pt-2 mt-1 border-t border-border text-sm text-ink">
-                    <span>Paid via {inv.mode}</span>
-
-                    <span className="tabular-nums">{fmt(inv.paid)}</span>
-                  </div>
-
-                  {inv.due > 0.005 && (
-                    <div className="flex justify-between text-sm text-rose">
-                      <span>Due</span>
-
-                      <span className="tabular-nums">{fmt(inv.due)}</span>
+              <div>
+                <div className="text-sm text-ink">{inv.patientName}</div>
+                <div className="text-xs text-inkSoft">{inv.id} · {inv.date}</div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm tabular-nums text-ink">{fmt(inv.total)}</span>
+                <Badge status={inv.status} />
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => setMenuOpen(menuOpen === inv.id ? null : inv.id)}
+                    className="p-1 rounded hover:bg-surfaceAlt text-inkSoft"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+                  {menuOpen === inv.id && (
+                    <div className="absolute right-0 top-full mt-1 bg-white border border-border rounded-lg shadow-lg z-10 w-32 py-1">
+                      <button
+                        onClick={() => confirmDeleteInvoice(inv)}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-rose hover:bg-roseLight"
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          ))}
+                <ChevronDown
+                  size={16}
+                  className="text-inkSoft transition-transform"
+                  style={{ transform: openId === inv.id ? "rotate(180deg)" : "none" }}
+                />
+              </div>
+            </button>
 
+            {openId === inv.id && (
+              <div className="px-4 pb-4 text-sm border-t border-border">
+                <div className="divide-y divide-border mt-2">
+                  {inv.items.map((it, idx) => (
+                    <div key={idx} className="flex justify-between py-1.5">
+                      <span className="text-ink">{it.description}</span>
+                      <span className="tabular-nums">{fmt(it.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-1 space-y-1 text-xs text-inkSoft">
+                  {inv.discountAmt > 0 && (
+                    <div className="flex justify-between">
+                      <span>Discount</span>
+                      <span>-{fmt(inv.discountAmt)}</span>
+                    </div>
+                  )}
+                  {inv.taxAmt > 0 && (
+                    <div className="flex justify-between">
+                      <span>Tax</span>
+                      <span>+{fmt(inv.taxAmt)}</span>
+                    </div>
+                  )}
+                  {inv.insuranceAmt > 0 && (
+                    <div className="flex justify-between">
+                      <span>Insurance</span>
+                      <span>-{fmt(inv.insuranceAmt)}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-between pt-2 mt-1 border-t border-border text-sm text-ink">
+                  <span>Paid via {inv.mode}</span>
+                  <span className="tabular-nums">{fmt(inv.paid)}</span>
+                </div>
+                {inv.due > 0.005 && (
+                  <div className="flex justify-between text-sm text-rose">
+                    <span>Due</span>
+                    <span className="tabular-nums">{fmt(inv.due)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
         {filtered.length === 0 && (
-          <p className="text-sm py-6 text-center text-inkSoft">
-            No invoices match.
-          </p>
+          <p className="text-sm py-6 text-center text-inkSoft">No invoices match.</p>
         )}
       </div>
     </div>
