@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireStaff } from "@/lib/auth";
 
 export async function PUT(request, { params }) {
+  const auth = requireStaff(request);
+  if (auth) return auth;
   try {
     const { id } = await params;
     const body = await request.json();
@@ -27,6 +30,8 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
+  const auth = requireStaff(request);
+  if (auth) return auth;
   try {
     const { id } = await params;
     await prisma.xRay.delete({ where: { id } });

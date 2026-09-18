@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireStaff } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request) {
+  const auth = requireStaff(request);
+  if (auth) return auth;
   try {
     const invoices = await prisma.invoice.findMany({
       include: { items: true },
@@ -15,6 +18,8 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  const auth = requireStaff(request);
+  if (auth) return auth;
   try {
     const body = await request.json();
 

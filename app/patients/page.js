@@ -44,7 +44,10 @@ export default function PatientsPage() {
   useEffect(load, []);
 
   const filtered = patients.filter(
-    (p) => p.name.toLowerCase().includes(query.toLowerCase()) || p.id.toLowerCase().includes(query.toLowerCase())
+    (p) =>
+      p.name.toLowerCase().includes(query.toLowerCase()) ||
+      (p.phone || "").toLowerCase().includes(query.toLowerCase()) ||
+      p.id.toLowerCase().includes(query.toLowerCase())
   );
 
   const addPatient = async () => {
@@ -231,7 +234,7 @@ export default function PatientsPage() {
 
       <div className="relative mb-3 max-w-xs">
         <Search size={15} className="absolute left-2.5 top-2.5 text-inkSoft" />
-        <TextInput value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search patients" className="pl-8 w-full" />
+        <TextInput value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by name, phone or ID" className="pl-8 w-full" />
       </div>
 
       <div className="rounded-lg bg-white border border-border">

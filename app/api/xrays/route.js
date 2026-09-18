@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireStaff } from "@/lib/auth";
 
 export async function GET(request) {
+  const auth = requireStaff(request);
+  if (auth) return auth;
   try {
     const patientId = request.nextUrl.searchParams.get("patientId");
     const xrays = await prisma.xRay.findMany({
@@ -16,6 +19,8 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  const auth = requireStaff(request);
+  if (auth) return auth;
   try {
     const body = await request.json();
 

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireStaff } from "@/lib/auth";
 
 export async function PUT(request, { params }) {
+  const auth = requireStaff(request);
+  if (auth) return auth;
   try {
     const { id } = await params;
     const body = await request.json();
@@ -25,8 +28,26 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
+  const auth = requireStaff(request);
+  if (auth) return auth;
   try {
     const { id } = await params;
+
+    const linked = await prisma.$transaction(async (tx) => {
+      const x = await tx.xRay.count({ where: { patientId: id } });
+      const i = await tx.invoice.count({ where: { patientId: id } });
+      return { xrays: x, invoices: i };
+    });
+
+    if (linked.xrays > 0 || linked.invoices > 0) {
+      return NextResponse.json(
+        {
+          error: `Cannot delete ${id}: still has ${linked.xrays} x-ray record(s) and ${linked.invoices} invoice(s). Delete those first.`,
+        },
+        { status: 409 }
+      );
+    }
+
     await prisma.patient.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (e) {

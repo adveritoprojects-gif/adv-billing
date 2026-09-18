@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -9,8 +10,11 @@ import {
   FileText,
   BarChart3,
   Stethoscope,
+  UserCog,
+  LogOut,
 } from "lucide-react";
 import Image from "next/image";
+
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/patients", label: "Patients", icon: Users },
@@ -19,8 +23,35 @@ const NAV = [
   { href: "/invoices", label: "Invoices", icon: FileText },
   { href: "/reports", label: "Reports", icon: BarChart3 },
 ];
+
 export default function Shell({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [me, setMe] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setMe(d))
+      .catch(() => setMe(null));
+  }, []);
+
+  if (pathname.startsWith("/login")) {
+    return <div className="min-h-screen w-full bg-tealDeep">{children}</div>;
+  }
+
+  const navItems =
+    me?.role === "Admin"
+      ? [...NAV, { href: "/staff", label: "Staff", icon: UserCog }]
+      : NAV;
+
+  const logout = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    setMe(null);
+    router.push("/login");
+    router.refresh();
+  };
+
   return (
     <div className="flex flex-col sm:flex-row min-h-screen w-full">
       {/* Desktop / Tablet Sidebar */}
@@ -32,7 +63,7 @@ export default function Shell({ children }) {
         </div>
         {/* Navigation */}
         <nav className="flex flex-col gap-1">
-          {NAV.map(({ href, label, icon: Icon }) => {
+          {navItems.map(({ href, label, icon: Icon }) => {
             const active =
               pathname === href ||
               (href !== "/" && pathname.startsWith(`${href}/`));
@@ -54,7 +85,7 @@ export default function Shell({ children }) {
         className="sm:hidden flex overflow-x-auto gap-1 px-2 py-2 bg-tealDeep no-scrollbar"
         aria-label="Mobile navigation"
       >
-        {NAV.map(({ href, label, icon: Icon }) => {
+        {navItems.map(({ href, label, icon: Icon }) => {
           const active =
             pathname === href ||
             (href !== "/" && pathname.startsWith(`${href}/`));
@@ -74,6 +105,20 @@ export default function Shell({ children }) {
         {/* Header */}
         <header className="no-print flex items-center justify-between px-4 sm:px-6 py-3 border-b border-border">
           <p className="text-base font-medium text-ink"> Payyannur Scans Pvt. Ltd. </p>
+          <div className="flex items-center gap-2">
+            {me && (
+              <span className="hidden sm:inline text-xs text-inkSoft">
+                {me.name} · {me.role}
+              </span>
+            )}
+            <button
+              onClick={logout}
+              className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-inkSoft hover:bg-surfaceAlt"
+              title="Sign out"
+            >
+              <LogOut size={14} /> <span className="hidden sm:inline">Sign out</span>
+            </button>
+          </div>
         </header>
         {/* Page Content */}
         <div className="p-4 sm:p-6 flex-1 bg-page"> {children} </div>
