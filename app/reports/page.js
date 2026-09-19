@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { TrendingUp, AlertCircle } from "lucide-react";
 import { PAY_MODES, fmt } from "@/lib/constants";
 import { StatCard, SectionHeader, Skeleton } from "@/components/ui";
 
 export default function ReportsPage() {
+  const router = useRouter();
   const [patients, setPatients] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,10 +17,15 @@ export default function ReportsPage() {
     setLoading(true);
     setError(null);
     Promise.all([
+      fetch("/api/me").then((r) => (r.ok ? r.json() : null)),
       fetch("/api/patients").then((r) => (r.ok ? r.json() : [])),
       fetch("/api/invoices").then((r) => (r.ok ? r.json() : [])),
     ])
-      .then(([p, i]) => {
+      .then(([me, p, i]) => {
+        if (!me || me.role !== "Admin") {
+          router.replace("/billing");
+          return;
+        }
         setPatients(Array.isArray(p) ? p : []);
         setInvoices(Array.isArray(i) ? i : []);
         setLoading(false);
@@ -29,7 +36,7 @@ export default function ReportsPage() {
       });
   };
 
-  useEffect(load, []);
+  useEffect(load, [router]);
 
   if (loading) {
     return (

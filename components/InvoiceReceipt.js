@@ -8,7 +8,7 @@ export default function InvoiceReceipt({ invoice, patient, onDone, onNew }) {
       <div className="rounded-lg bg-white p-5" style={{ border: "1px dashed #CBD8CF" }}>
         <div className="flex items-center gap-2 mb-1">
           <Stethoscope size={16} className="text-tealDeep" />
-          <span className="text-[15px] font-head text-ink">Riverside Family Clinic</span>
+          <span className="text-[15px] font-head text-ink">Payyannur Scans Pvt. Ltd.</span>
         </div>
         <p className="text-xs mb-3 text-inkSoft">Invoice {invoice.id} · {invoice.date}</p>
         <p className="text-sm mb-3 text-ink">

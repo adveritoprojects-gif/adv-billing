@@ -40,10 +40,14 @@ export default function Shell({ children }) {
     return <div className="min-h-screen w-full bg-tealDeep">{children}</div>;
   }
 
+  const STAFF_NAV = NAV.filter(({ href }) =>
+    ["/patients", "/xrays", "/billing", "/invoices"].includes(href)
+  );
+
   const navItems =
     me?.role === "Admin"
       ? [...NAV, { href: "/staff", label: "Staff", icon: UserCog }]
-      : NAV;
+      : STAFF_NAV;
 
   const logout = async () => {
     await fetch("/api/logout", { method: "POST" });

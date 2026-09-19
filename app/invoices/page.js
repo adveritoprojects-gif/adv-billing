@@ -221,7 +221,7 @@ export default function InvoicesPage() {
                 <div className="max-w-md mx-auto mt-4 rounded-lg bg-white p-5" style={{ border: "1px dashed #CBD8CF" }}>
                   <div className="flex items-center gap-2 mb-1">
                     <Stethoscope size={16} className="text-tealDeep" />
-                    <span className="text-[15px] font-head text-ink">Riverside Family Clinic</span>
+                    <span className="text-[15px] font-head text-ink">Payyannur Scans Pvt. Ltd.</span>
                   </div>
                   <p className="text-xs mb-3 text-inkSoft">Invoice {inv.id} · {fmtDateTime(inv)}</p>
                   <p className="text-sm mb-1 text-ink">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Users,
@@ -15,6 +16,7 @@ import { fmt, today } from "@/lib/constants";
 import { StatCard, SectionHeader, Badge, Skeleton } from "@/components/ui";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [patients, setPatients] = useState([]);
   const [xrays, setXrays] = useState([]);
   const [invoices, setInvoices] = useState([]);
@@ -25,11 +27,16 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
     Promise.all([
+      fetch("/api/me").then((r) => (r.ok ? r.json() : null)),
       fetch("/api/patients").then((r) => (r.ok ? r.json() : [])),
       fetch("/api/xrays").then((r) => (r.ok ? r.json() : [])),
       fetch("/api/invoices").then((r) => (r.ok ? r.json() : [])),
     ])
-      .then(([p, x, i]) => {
+      .then(([me, p, x, i]) => {
+        if (!me || me.role !== "Admin") {
+          router.replace("/billing");
+          return;
+        }
         setPatients(Array.isArray(p) ? p : []);
         setXrays(Array.isArray(x) ? x : []);
         setInvoices(Array.isArray(i) ? i : []);
@@ -41,7 +48,7 @@ export default function DashboardPage() {
       });
   };
 
-  useEffect(load, []);
+  useEffect(load, [router]);
 
   if (loading) {
     return (
